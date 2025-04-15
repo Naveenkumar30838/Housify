@@ -1,0 +1,31 @@
+{
+  "name": "housify",
+  "version": "1.0.0",
+  "description": "Housing Rentals",
+  "main": "index.js",
+  "scripts": {
+    "test": "Na"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harsh19677/Housify.git"
+  },
+  "keywords": [
+    "fna"
+  ],
+  "author": "Harsh Kumar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Harsh19677/Housify/issues"
+  },
+  "homepage": "https://github.com/Harsh19677/Housify#readme",
+  "dependencies": {
+    "@faker-js/faker": "^9.7.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "faker": "^6.6.6",
+    "method-override": "^3.0.0",
+    "mysql2": "^3.14.0",
+    "uuid": "^11.1.0"
+  }
+}
