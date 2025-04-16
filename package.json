@@ -21,11 +21,17 @@
   "homepage": "https://github.com/Harsh19677/Housify#readme",
   "dependencies": {
     "@faker-js/faker": "^9.7.0",
+    "connect-mongo": "^5.1.0",
+    "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
     "express": "^5.1.0",
+    "express-session": "^1.18.1",
     "faker": "^6.6.6",
     "method-override": "^3.0.0",
+    "mongoose": "^8.13.2",
+    "multer": "^1.4.5-lts.2",
     "mysql2": "^3.14.0",
+    "nodemon": "^3.1.9",
     "uuid": "^11.1.0"
   }
 }
