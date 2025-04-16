@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification</title>
+</head>
+<body>
+    <div>
+        <h2>Message</h2>
+        <p><%=message%></p>
+        
+    </div>
+   
+     <p>Redirecting in <span id="timer">3</span> Sec ...</p>
+      
+    <script>
+        timer = 3;
+      
+        const interval  = setInterval(() => {
+            timer--;
+            document.getElementById('timer').textContent=timer;
+            if(timer==0){
+                clearInterval(interval)
+                window.location.href="<%=url%>";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
