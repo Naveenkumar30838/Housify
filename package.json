@@ -13,7 +13,6 @@
   "keywords": [
     "fna"
   ],
-  "type": "module",
   "author": "Harsh Kumar",
   "license": "ISC",
   "bugs": {
@@ -36,5 +35,10 @@
     "nodemon": "^3.1.9",
     "pexels": "^1.4.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4"
   }
 }

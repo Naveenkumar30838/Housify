@@ -1,16 +1,15 @@
 // models/Session.js
 const mongoose = require('mongoose');
 
-// Define the Session Schema
 const sessionSchema = new mongoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Reference to User model
+    type: String, // MySQL UUID
     required: true,
   },
   sessionId: {
-    type: String, // sessionId from express-session
+    type: String,
     required: true,
+    index: true,
   },
   name: {
     type: String,
@@ -23,7 +22,7 @@ const sessionSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
 module.exports = mongoose.model('Session', sessionSchema);

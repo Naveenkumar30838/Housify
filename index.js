@@ -10,13 +10,15 @@ const session = require('express-session');
 const MongoStore = require('connect-mongo');
 const multer = require('multer');
 require('dotenv').config();
+const { v4: uuidv4 } = require('uuid');
 const app = express();
+const InsertData = require('./DataInsertionQueries.js');
 
 // ------- MiddleWares --------------
 // setting for the views directory and serving static files
 app.set('view engine', 'ejs');
 app.set("views" , path.join(__dirname, "views"));
-app.use('/public', express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // setting the middlewares to accept post requests
 app.use(express.json());
@@ -79,26 +81,71 @@ connection.connect((err) => {
         console.error('Error connecting to the database:', err.message);
         return;
     }
-    console.log('Connected to the database.');
+    console.log('Connected to the SQL database.');
 }); 
-const queryDatabase = (query , params=[] )=>{
-    return new promise ((resolve , reject )=>{
-        connection.query(query , params , (err , result)=>{
-            if(err){
-                return reject(err)
-            }
-            return resolve(result);
-        })
+const queryDatabase = (query, params = []) => {
+  return new Promise((resolve, reject) => {
+      connection.query(query, params, (err, result) => {
+          if (err) {
+              return reject(err);
+          }
+          return resolve(result);
+      });
+  });
+};
 
-    })
+// Initial query to Insert Temporary data in the database(SQL Database if it found empty )
+const fillDataBase = async ()=>{
+  query = 'SELECT * FROM USER';
+  let res = await queryDatabase(query);
+  if(res.length==0){
+    console.log("userTable is null")
+    InsertData.callInsertUser();  
+  }
+  query = 'SELECT * FROM LISTING';
+   res = await queryDatabase(query);
+  if(res.length==0){
+    console.log("Listing Table  is null")
+    InsertData.callInsertListing();  
+  }
+  query = 'SELECT * FROM BOOKING';
+   res = await queryDatabase(query);
+  if(res.length==0){
+    console.log("Booking Table is null")
+    InsertData.callInsertBooking();  
+  }
 }
+fillDataBase();
+
 //  ------------------- Routing   -------------------
 app.get('/', (req, res) => {
-  let email = req.session.email
-  if(email == undefined){
-      email= null;
-  }
-  res.render('index.ejs' , {email})
+
+  const user = {
+    name: 'Harsh Kumar'
+  };
+
+  const properties = [
+    {
+      title: 'Cozy Apartment',
+      city: 'New York',
+      price: 1200
+    },
+    {
+      title: 'Modern Loft',
+      city: 'Los Angeles',
+      price: 2200
+    },
+    {
+      title: 'Lakeview Condo',
+      city: 'Chicago',
+      price: 1500
+    }
+  ];
+
+  res.render('index', {
+    user,
+    properties
+  });
 });
 app.get('/signup' , (req, res)=>{
   res.render('signup.ejs')
@@ -144,17 +191,39 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/signup', async (req, res) => {
-  const { name, email, password } = req.body;
-  const query = `SELECT count(USER_ID) FROM USER WHERE EMAIL=?`
-  const resp = await queryDatabase(query , [email])
-  if(resp[0]['count(USER_ID)']>0){
-    res.status(400).send("Email Already in Use")
-  }else {
-    // user does not exist add data to user Data Base and make the user session start
+  const { name, email, password, phone, income } = req.body;
+  try{
 
-  }
+  const query = `SELECT count(USER_ID) FROM USER WHERE EMAIL=?`;
+  const resp = await queryDatabase(query, [email]);
 
+  if (resp[0]['count(USER_ID)'] > 0) {// user Already Exists
+    res.status(400).send("Email Already in Use");
+  } else { // SAVE User , create express session and save the session in Mongo
+  const userId = uuidv4();
+  const formattedIncome = income ? parseFloat(income) : null;
 
+  const insertQuery = `
+    INSERT INTO USER (USER_ID, NAME, EMAIL, PASSWORD, PHONE, INCOME)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  await queryDatabase(insertQuery, [userId, name, email, password, phone || null, formattedIncome]);
+
+  // 3. Store session data
+  req.session.userId = userId;
+  req.session.name = name;
+  req.session.email = email;
+  
+  // 4. Saving the Session in mongoDb 
+  const sessionEntry = new Session({
+    userId, 
+    sessionId:req.sessionID, 
+    name , 
+    email
+  })
+  await sessionEntry.save();
+}
+}
 
 //   await user.save();
 //   req.session.userId = user._id; // Store user ID in session
