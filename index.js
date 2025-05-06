@@ -118,46 +118,40 @@ const fillDataBase = async ()=>{
 fillDataBase();
 
 //  ------------------- Routing   -------------------
-app.get('/', (req, res) => {
-
-  const user = {
-    name: 'Harsh Kumar'
+app.get('/',async (req, res) => {
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
   };
-
-  const properties = [
-    {
-      title: 'Cozy Apartment',
-      city: 'New York',
-      price: 1200
-    },
-    {
-      title: 'Modern Loft',
-      city: 'Los Angeles',
-      price: 2200
-    },
-    {
-      title: 'Lakeview Condo',
-      city: 'Chicago',
-      price: 1500
-    }
-  ];
+  
+ // get all locations 
+  const getLocationQuery = "select distinct(city) from listing limit 50"
+  const getPropertyQuery = "SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING LIMIT 50"
+  const locations= await queryDatabase(getLocationQuery,[]);
+  const properties= await queryDatabase(getPropertyQuery,[]);
 
   res.render('index', {
     user,
+    locations,
     properties
   });
 });
 app.get('/signup' , (req, res)=>{
-  res.render('signup.ejs')
+  let user = {// Getting user Details from session
+    name:req.session.name==undefined?null:req.session.name
+  };
+  res.render('signup.ejs' , {user})
 })
 app.get('/login' , (req, res)=>{
-  res.render('login.ejs')
+  let user = {// Getting user Details from session
+    name:req.session.name==undefined?null:req.session.name
+  };
+  res.render('login.ejs' , {user})
 }) 
 // Post Response 
 app.post('/upload', (req, res, next) => {
   const userId = req.session.userId
   if (!userId) {
-      // Handle not logged in 
       res.render('login.ejs');
       return;
     }
@@ -167,92 +161,154 @@ app.post('/upload', (req, res, next) => {
 });
 
 app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-  const query=`SELECT ID , NAME , EMAIL FROM USER WHERE EMAIL=? AND PASSWORD=?`; 
-  const user = connection.query(query, [email , password] ,async (res , result)=>{
-    if(result.length===0){
-      return res.status(401).send('Invalid Username or Password');
+    let { email, password } = req.body;
+    const query=`SELECT * FROM USER WHERE EMAIL=? AND PASSWORD=? `
+    const result = await queryDatabase(query, [email , password] );
+
+    if(result===undefined || result[0].length == 0){
+      res.render('alert.ejs' , {url : '/' , message:"Invalid user"});
     }else {
-       const user = result[0];
-        req.session.userId = user.ID; // Store user ID in the session
+        const user = result[0];
+        req.session.userId = user.USER_ID; // Store user ID in the session
         req.session.name = user.NAME; // Store user name in the session
         req.session.email = user.EMAIL; // Store user email in the session
+        console.log(req.session.userId)
 
         const session = new Session({
-            userId: user.ID,
+            userId: user.USER_ID,
             sessionId: req.sessionID,
             name: user.NAME, // Add user name to session data
             email: user.EMAIL, // Add user email to session data
-          });
+        });
           await session.save();
           res.redirect('/');
     }
-  }) 
+   
 });
 
 app.post('/signup', async (req, res) => {
   const { name, email, password, phone, income } = req.body;
   try{
 
-  const query = `SELECT count(USER_ID) FROM USER WHERE EMAIL=?`;
-  const resp = await queryDatabase(query, [email]);
+    const query = `SELECT count(USER_ID) FROM USER WHERE EMAIL=?`;
+    const resp = await queryDatabase(query, [ email]);
 
   if (resp[0]['count(USER_ID)'] > 0) {// user Already Exists
     res.status(400).send("Email Already in Use");
   } else { // SAVE User , create express session and save the session in Mongo
-  const userId = uuidv4();
-  const formattedIncome = income ? parseFloat(income) : null;
+      const userId = uuidv4();
+      const formattedIncome = income ? parseFloat(income) : null;
 
-  const insertQuery = `
-    INSERT INTO USER (USER_ID, NAME, EMAIL, PASSWORD, PHONE, INCOME)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  await queryDatabase(insertQuery, [userId, name, email, password, phone || null, formattedIncome]);
+      const insertQuery = `
+        INSERT INTO USER (USER_ID, NAME, EMAIL, PASSWORD, PHONE, INCOME)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `;
+      await queryDatabase(insertQuery, [userId, name, email, password, phone || null, formattedIncome]);
 
-  // 3. Store session data
-  req.session.userId = userId;
-  req.session.name = name;
-  req.session.email = email;
-  
-  // 4. Saving the Session in mongoDb 
-  const sessionEntry = new Session({
-    userId, 
-    sessionId:req.sessionID, 
-    name , 
-    email
-  })
-  await sessionEntry.save();
-}
-}
+      // 3. Store session data
+      req.session.userId = userId;
+      req.session.name = name;
+      req.session.email = email;
+      // 4. Saving the Session in mongoDb 
+      const sessionEntry = new Session({
+        userId, 
+        sessionId:req.sessionID, 
+        name , 
+        email
+      })
+      await sessionEntry.save();
+      res.redirect('/')
+  }
+  }catch{
+    res.status(500).send("Internal Server Error");
+  }
 
-//   await user.save();
-//   req.session.userId = user._id; // Store user ID in session
-//   req.session.name = user.name; // Store user name in session
-//   req.session.email = user.email; // Store user email in session
-
-//   // Store session info in MongoDB as well
-//   const session = new Session({
-//     userId: user._id,
-//     sessionId: req.sessionID,
-//     name: user.name,
-//     email: user.email,
-//   });
-//   await session.save();
-//   res.redirect('/dashboard');
 });
 
 // Logout
 app.get('/logout', (req, res) => {
-   const sessionId = req.sessionID;
-   req.session.destroy(async(err)=>{
+  const sessionId = req.sessionID;
+  req.session.destroy(async (err) => {
     if(err){
-      res.send("Error in logout");
-    }else {
-      await Session.deleteOne({sessionId})
-      res.redirect('/');
+        res.send("Error in logout")
+    }else{
+     await Session.deleteOne({sessionId})
+     res.redirect('/')
     }
-   })
+  })
 });    
+app.get('/profile/:userId' ,async (req , res)=>{
+  const {userId} = req.params;
+  const query = 'SELECT NAME ,EMAIL , PHONE , INCOME FROM USER where USER_ID= ?';
+  // Finding the User's data 
+  const profile = await queryDatabase(query, [userId]);
+  
+  // Finding the listings which are not booked
+  const unbookedListingQuery = 'SELECT * FROM LISTING WHERE ID NOT IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID = ?'
+  const unbookedListing = await queryDatabase(unbookedListingQuery ,[userId])
+  // OR SELECT * FROM LISTING INNER JOIN BOOKING ON LISTING.ID = BOOKING.LISTING_ID;
+
+  // Finding the listings which are booked
+
+  const bookedListingQuery = 'SELECT * FROM LISTING WHERE ID IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID =? '
+  const bookedListing = await queryDatabase(bookedListingQuery ,[userId])
+  // OR SELECT LISTING.NAME , LISTING.ID , LISTING.IMAGE_URL , LISTING.USER_ID , LISTING.DESCRIPTION FROM LISTING INNER JOIN BOOKING ON LISTING.ID == BOOKING.LISTING_ID
+  
+  res.render('profile.ejs' ,{profile , bookedListing , unbookedListing})
+
+})
+app.get('/listing/:id' , async (req , res)=>{
+  const {id} =req.params
+  const getListingQuery = 'SELECT * FROM LISTING WHERE ID  = ?'
+  const bookingUserDetailsQuery='SELECT * FROM USER WHERE USER_ID = (SELECT USER_ID FROM BOOKING WHERE LISTING_ID = ?) '
+  const ownerDetailsQuery='SELECT * FROM USER WHERE USER_ID = ? '
+  const oneListingData = await queryDatabase(getListingQuery , [id]);
+  const bookingUserDetails = await queryDatabase(bookingUserDetailsQuery , [id]);
+  const ownerDetails = await queryDatabase(ownerDetailsQuery , [oneListingData[0].USER_ID]);
+
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
+  };
+  console.log("bookingOwner" , bookingUserDetails[0]);
+  res.render('listings', { listing:oneListingData[0] ,ownerDetails:ownerDetails[0],  user ,bookingUser:bookingUserDetails[0]});
+
+});
+app.get('/filter' , async (req , res)=>{
+  const {city , sort} = req.query;
+  if(city=="" && sort==""){
+    res.redirect('/')
+  }else{
+
+    let user = {
+      name:req.session.name==undefined?null:req.session.name,
+      USER_ID:req.session.userId 
+    };
+    
+   // get all locations 
+    let getLocationQuery = "select distinct(city) from listing limit 50"
+    let locations= await queryDatabase(getLocationQuery,[]);
+    let properties=[];
+
+    if(city==""){ //sort ascending or descending
+      properties=await queryDatabase(`SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING ORDER BY PRICEPERMONTH ${sort} LIMIT 50;` , []);
+    }else if (sort==""){ //filter by city 
+      properties=await queryDatabase(`SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING WHERE CITY="${city}" LIMIT 50;` , []);
+      locations=[{city:city}];
+    }else{ //filter by city and acending
+      properties=await queryDatabase(`SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING WHERE CITY="${city}" ORDER BY PRICEPERMONTH ${sort} LIMIT 50;` , []);
+      locations=[{city:city}];
+    }
+    
+    res.render('index', {
+      user,
+      locations,
+      properties
+    });
+
+  }
+})
+
 
 // Start the server using the PORT from .env file
 const PORT = process.env.PORT || 8000;

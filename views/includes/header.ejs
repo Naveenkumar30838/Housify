@@ -1,0 +1,43 @@
+<div class="flex justify-between items-center mb-6 px-6 py-4 bg-yellow shadow-md">
+
+    <!-- Left: Website Logo/Name -->
+    <div class="text-2xl font-bold text-blue-600">
+      <a href="/">Housify</a>
+    </div>
+  
+    <!-- Center: Search -->
+    <form action="/search" method="GET" class="flex flex-grow max-w-xl mx-8">
+      <input 
+        type="text" 
+        name="query" 
+        placeholder="Search properties..." 
+        class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+      >
+      <button type="submit" class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600">
+        Search
+      </button>
+    </form>
+  
+    <!-- Right: Auth Buttons / Profile -->
+    <div class="flex items-center space-x-4">
+      <% if (!user || !user.name) { %>
+        <!-- User not logged in -->
+        <a href="/login" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Login</a>
+        <a href="/signup" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</a>
+      <% } else { %>
+        <a href="/profile/<%= user.USER_ID%>" class="relative block">
+          <div class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full text-lg font-semibold hover:bg-blue-600">
+            <%= user.name.charAt(0).toUpperCase() %>
+          </div>
+        </a>
+        <form action="/logout" method="GET">
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+            Logout
+          </button>
+        </form>
+      <% } %>
+    </div>
+
+</div>
+  
+  
