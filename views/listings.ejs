@@ -50,7 +50,7 @@
       <p><strong>Price per Month:</strong> ₹<%= listing.PRICEPERMONTH %></p>
       <p><strong>Discount:</strong> <%= listing.DISCOUNT %>%</p>
       <p><strong>Rating:</strong> <%= listing.RATING %> ⭐</p>
-      <p><strong>Owner:</strong> <a href="http://localhost:8000/profile/<%=listing.USER_ID %>"> <%= ownerDetails.NAME %> </a></p>
+      <p><strong>Owner:</strong> <a href="http://localhost:8000/profile/<%=listing.USER_ID %>"> <%= listing.OWNERNAME %> </a></p>
       <p>
         <strong>Availability:</strong> 
         <% if (listing.AVAILABILITY) { %>

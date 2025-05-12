@@ -164,9 +164,8 @@ app.post('/login', async (req, res) => {
     let { email, password } = req.body;
     const query=`SELECT * FROM USER WHERE EMAIL=? AND PASSWORD=? `
     const result = await queryDatabase(query, [email , password] );
-
-    if(result===undefined || result[0].length == 0){
-      res.render('alert.ejs' , {url : '/' , message:"Invalid user"});
+    if(result===undefined || result.length == 0){
+      res.render('alert.ejs' , {url : '/login' , message:"Invalid user"});
     }else {
         const user = result[0];
         req.session.userId = user.USER_ID; // Store user ID in the session
@@ -257,23 +256,32 @@ app.get('/profile/:userId' ,async (req , res)=>{
   res.render('profile.ejs' ,{profile , bookedListing , unbookedListing})
 
 })
+app.get('/listing/new' , async (req , res)=>{
+  res.send("About to add new Listing");   
+})
 app.get('/listing/:id' , async (req , res)=>{
-  const {id} =req.params
-  const getListingQuery = 'SELECT * FROM LISTING WHERE ID  = ?'
-  const bookingUserDetailsQuery='SELECT * FROM USER WHERE USER_ID = (SELECT USER_ID FROM BOOKING WHERE LISTING_ID = ?) '
-  const ownerDetailsQuery='SELECT * FROM USER WHERE USER_ID = ? '
-  const oneListingData = await queryDatabase(getListingQuery , [id]);
-  const bookingUserDetails = await queryDatabase(bookingUserDetailsQuery , [id]);
-  const ownerDetails = await queryDatabase(ownerDetailsQuery , [oneListingData[0].USER_ID]);
-
+  const {id} =req.params;
   let user = {
     name:req.session.name==undefined?null:req.session.name,
     USER_ID:req.session.userId 
   };
-  console.log("bookingOwner" , bookingUserDetails[0]);
-  res.render('listings', { listing:oneListingData[0] ,ownerDetails:ownerDetails[0],  user ,bookingUser:bookingUserDetails[0]});
+  
+  // query to get listing and owner details using join query 
+  const listingDetailsQuery = 'SELECT LISTING.USER_ID , LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.ID = ?'
+  const listingDetails = (await queryDatabase(listingDetailsQuery , [id]))[0];
+
+  // CHECKING IF THE GIVEN LISTING IS IN THE BOOKING TABLE 
+  if(listingDetails.AVAILABILITY ==0){// BOOKED
+    const bookingUserDetailsQuery='SELECT * FROM USER WHERE USER_ID = (SELECT USER_ID FROM BOOKING WHERE LISTING_ID = ?) '
+    const bookingUser = (await queryDatabase(bookingUserDetailsQuery , [id]))[0];
+    console.log(bookingUser);
+    res.render('listings' ,{user,listing:listingDetails , bookingUser} )
+  }else{
+    res.render('listings' , {user ,listing : listingDetails})
+  }
 
 });
+
 app.get('/filter' , async (req , res)=>{
   const {city , sort} = req.query;
   if(city=="" && sort==""){
@@ -307,6 +315,27 @@ app.get('/filter' , async (req , res)=>{
     });
 
   }
+})
+app.get('/search' ,async (req , res)=>{
+  const {query}= req.query;
+
+  const listingDetailsQuery = 'SELECT LISTING.USER_ID , LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.CITY = ?'
+  const listingDetails = await queryDatabase(listingDetailsQuery , [query]);
+ 
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
+  };
+  
+ // get all locations 
+  const getLocationQuery = "select distinct(city) from listing limit 50"
+  const locations= await queryDatabase(getLocationQuery,[]);
+
+  res.render('index', {
+    user,
+    locations,
+    properties:listingDetails
+  });
 })
 
 

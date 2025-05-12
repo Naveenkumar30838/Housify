@@ -41,32 +41,36 @@
   </form>
 
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% properties.forEach(property => { %>
-      <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-        <img src="<%= property.IMAGE_URL %>" alt="Property Image" class="w-full h-48 object-cover">
-        
-        <div class="p-4">
-          <!-- Clickable Name -->
-          <h2 class="text-xl font-semibold text-blue-600 hover:underline">
-            <a href="/listing/<%= property.ID %>"><%= property.NAME %></a>
-          </h2>
-  
-          <!-- Location -->
-          <p class="text-gray-600 text-sm"><%= property.CITY %>, <%= property.STATE %></p>
-  
-          <!-- Price -->
-          <p class="mt-2 text-green-600 font-semibold">₹<%= property.PRICEPERMONTH %>/month</p>
-  
-          <!-- Star Rating -->
-          <div class="mt-2 text-yellow-500">
-            <% for (let i = 0; i < property.RATING; i++) { %>
-              ⭐
-            <% } %>
-            <span class="text-sm text-gray-700 ml-1">(<%= property.RATING %>)</span>
+    <% if(properties.length==0){ %>
+      <h2>NO PROPERTIES</h2>
+    <% }else{ %>
+      <% properties.forEach(property => { %>
+        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+          <img src="<%= property.IMAGE_URL %>" alt="Property Image" class="w-full h-48 object-cover">
+          
+          <div class="p-4">
+            <!-- Clickable Name -->
+            <h2 class="text-xl font-semibold text-blue-600 hover:underline">
+              <a href="/listing/<%= property.ID %>"><%= property.NAME %></a>
+            </h2>
+    
+            <!-- Location -->
+            <p class="text-gray-600 text-sm"><%= property.CITY %>, <%= property.STATE %></p>
+    
+            <!-- Price -->
+            <p class="mt-2 text-green-600 font-semibold">₹<%= property.PRICEPERMONTH %>/month</p>
+    
+            <!-- Star Rating -->
+            <div class="mt-2 text-yellow-500">
+              <% for (let i = 0; i < property.RATING; i++) { %>
+                ⭐
+              <% } %>
+              <span class="text-sm text-gray-700 ml-1">(<%= property.RATING %>)</span>
+            </div>
           </div>
         </div>
-      </div>
-    <% }) %>
+      <% }) %>
+    <% }%>
   </div>
   
 </body>
