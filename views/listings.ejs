@@ -55,6 +55,8 @@
         <strong>Availability:</strong> 
         <% if (listing.AVAILABILITY) { %>
           <span class="text-green-600 font-semibold">Available</span>
+          <br>
+          <span class="text-blue-600 font-semibold"><a href="http://localhost:8000/book/<%=listing.ID %>">Book Now</a></span>
         <% } else { %>
           <span class="text-red-600 font-semibold">Not Available</span>
           <p><strong>Booked By:</strong> <a href="http://localhost:8000/profile/<%=bookingUser.USER_ID %>"> <%= bookingUser.NAME %> </a></p>

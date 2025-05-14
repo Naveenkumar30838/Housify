@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add Listing - Housify</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-2xl bg-white rounded-lg shadow-md p-8">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Property Information Form</h2>
+    
+    <form action="/listing" method="POST" enctype="multipart/form-data" class="space-y-4">
+      <div>
+        <label for="name" class="block text-sm font-medium text-gray-700">Name:</label>
+        <input type="text" id="name" name="name" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+      </div>
+
+      <div>
+        <label for="description" class="block text-sm font-medium text-gray-700">Description:</label>
+        <textarea id="description" name="description" rows="4" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+      </div>
+
+      <div>
+        <label for="street" class="block text-sm font-medium text-gray-700">Street:</label>
+        <input type="text" id="street" name="street" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="city" class="block text-sm font-medium text-gray-700">City:</label>
+          <input type="text" id="city" name="city" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label for="state" class="block text-sm font-medium text-gray-700">State:</label>
+          <input type="text" id="state" name="state" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label for="pincode" class="block text-sm font-medium text-gray-700">Pincode:</label>
+          <input type="number" id="pincode" name="pincode" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500" maxlength="6">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label for="pricePerMonth" class="block text-sm font-medium text-gray-700">Price/Month:</label>
+          <input type="number" id="pricePerMonth" name="pricePerMonth" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label for="discount" class="block text-sm font-medium text-gray-700">Discount:</label>
+          <input type="number" id="discount" name="discount" class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label for="size" class="block text-sm font-medium text-gray-700">Size (sqft):</label>
+          <input type="number" id="size" name="size" required class="mt-1 block w-full rounded-md border border-gray-300 shadow-sm p-2 focus:ring-indigo-500 focus:border-indigo-500">
+        </div>
+      </div>
+
+      <div>
+        <label for="propertyImage" class="block text-sm font-medium text-gray-700">Upload Image:</label>
+        <input type="file" id="propertyImage" name="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-700" required>
+      </div>
+
+      <div class="pt-4">
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">
+          Submit
+        </button>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

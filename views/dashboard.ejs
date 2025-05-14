@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile Page</title>
+
+  <!-- Custom Styles -->
+  <link href="/styles.css" rel="stylesheet">
+
+  <!-- TailwindCSS 2.0.4 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen">
+
+ <!-- Header -->
+ <div class="flex justify-between items-center mb-6 px-6 py-4 bg-yellow shadow-md">
+
+    <!-- Left: Website Logo/Name -->
+    <div class="text-2xl font-bold text-blue-600">
+      <a href="/">Housify</a>
+    </div>
+  
+    <!-- Center: Search -->
+    <form action="/search" method="GET" class="flex flex-grow max-w-xl mx-8">
+      <input 
+        type="text" 
+        name="query" 
+        placeholder="Search property Locations..." 
+        class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+      >
+      <button type="submit" class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600">
+        Search
+      </button>
+    </form>
+  
+    <!-- Right: Auth Buttons / Profile -->
+    <div class="flex items-center space-x-4">
+      <% if (!user || !user.name) { %>
+        <!-- User not logged in -->
+        <a href="/login" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Login</a>
+        <a href="/signup" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</a>
+      <% } else { %>
+        <form action="/logout" method="GET">
+          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+            Logout
+          </button>
+        </form>
+        <a href="/listing/new" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add New Listing</a>
+
+      <% } %>
+    </div>
+
+</div>
+  
+  
+
+  <!-- Profile Information -->
+  <div class="max-w-4xl mx-auto mt-10 bg-white p-8 rounded-lg shadow-lg">
+    <h1 class="text-3xl font-bold mb-6 text-center">Profile Details</h1>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <p class="text-gray-700"><span class="font-semibold">Name:</span> <%= profile[0].NAME %></p>
+      </div>
+      <div>
+        <p class="text-gray-700"><span class="font-semibold">Email:</span> <%= profile[0].EMAIL %></p>
+      </div>
+      <div>
+        <p class="text-gray-700"><span class="font-semibold">Phone:</span> <%= profile[0].PHONE || "NA" %></p>
+      </div>
+      <div>
+        <p class="text-gray-700"><span class="font-semibold">Income:</span> ₹<%= profile[0].INCOME || "NA" %></p>
+      </div>
+    </div>
+  </div>
+<!-- Unbooked Listings -->
+<div class="max-w-6xl mx-auto mt-12">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800"> <abbr style="text-decoration: none; border-bottom: none;" title="<%=profile[0].NAME%>'s Listing Which arent' Booked"> UnBooked Listings</abbr></h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% unbookedListing.forEach(listing => { %>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          
+          <!-- Listing Image -->
+          <img src="<%= listing.IMAGE_URL %>" alt="Listing Image" class="h-48 w-full object-cover rounded mb-4">
+          
+          <!-- Name and Delete Button Row -->
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold text-blue-600 hover:underline">
+              <a href="/listing/<%= listing.ID %>"><%= listing.NAME %></a>
+            </h3>
+            <form action="/listing/<%= listing.ID %>?_method=DELETE" method="POST">
+              <button class="text-red-500 hover:text-red-700" title="Delete Listing">
+                🗑️
+              </button>
+            </form>
+          </div>
+  
+          <!-- Description -->
+          <p class="text-gray-600 text-sm">
+            <%= listing.DESCRIPTION.length > 100 ? listing.DESCRIPTION.substring(0, 100) + '...' : listing.DESCRIPTION %>
+          </p>
+  
+        </div>
+      <% }) %>
+    </div>
+  </div>
+  
+  <!-- Booked Listings -->
+  <div class="max-w-6xl mx-auto mt-16 mb-10">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800"> <abbr style="text-decoration: none; border-bottom: none;" title="<%= profile[0].NAME %>'s Listing Which are Booked"> Booked Listings</abbr></h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% bookedListing.forEach(listing => { %>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <!-- Listing Image -->
+          <img src="<%= listing.IMAGE_URL %>" alt="Listing Image" class="h-48 w-full object-cover rounded mb-4">
+          <!-- Name and Delete Button Row -->
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold text-blue-600 hover:underline">
+              <a href="/listing/<%= listing.ID %>"><%= listing.NAME %></a>
+            </h3>
+            <form action="/listing/<%= listing.ID %>?_method=DELETE" method="POST">
+              <button class="text-red-500 hover:text-red-700" title="Delete Listing">
+                🗑️
+              </button>
+            </form>
+          </div>
+  
+          <!-- Description -->
+          <p class="text-gray-600 text-sm">
+            <%= listing.DESCRIPTION.length > 100 ? listing.DESCRIPTION.substring(0, 100) + '...' : listing.DESCRIPTION %>
+          </p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+   <!-- My Bookings Listings -->
+   <div class="max-w-6xl mx-auto mt-16 mb-10">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800"> <abbr style="text-decoration: none; border-bottom: none;" title="Listings Booked By <%= profile[0].NAME %>"> My Bookings </abbr></h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <% myBookings.forEach(listing => { %>
+        <div class="bg-white p-6 rounded-lg shadow-md">
+          <!-- Listing Image -->
+          <img src="<%= listing.IMAGE_URL %>" alt="Listing Image" class="h-48 w-full object-cover rounded mb-4">
+          <!-- Name and Delete Button Row -->
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xl font-semibold text-blue-600 hover:underline">
+              <a href="/listing/<%= listing.ID %>"><%= listing.NAME %></a>
+            </h3>
+          </div>
+  
+          <!-- Description -->
+          <p class="text-gray-600 text-sm">
+            <%= listing.DESCRIPTION.length > 100 ? listing.DESCRIPTION.substring(0, 100) + '...' : listing.DESCRIPTION %>
+          </p>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+  
+</body>
+</html>

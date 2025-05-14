@@ -238,6 +238,14 @@ app.get('/logout', (req, res) => {
 });    
 app.get('/profile/:userId' ,async (req , res)=>{
   const {userId} = req.params;
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
+  };
+  if(user.USER_ID==userId){
+    res.redirect(`/dashboard/${userId}`);
+    return;
+  }
   const query = 'SELECT NAME ,EMAIL , PHONE , INCOME FROM USER where USER_ID= ?';
   // Finding the User's data 
   const profile = await queryDatabase(query, [userId]);
@@ -253,12 +261,38 @@ app.get('/profile/:userId' ,async (req , res)=>{
   const bookedListing = await queryDatabase(bookedListingQuery ,[userId])
   // OR SELECT LISTING.NAME , LISTING.ID , LISTING.IMAGE_URL , LISTING.USER_ID , LISTING.DESCRIPTION FROM LISTING INNER JOIN BOOKING ON LISTING.ID == BOOKING.LISTING_ID
   
-  res.render('profile.ejs' ,{profile , bookedListing , unbookedListing})
+  res.render('profile.ejs' ,{profile ,user, bookedListing , unbookedListing})
+})
+app.get('/dashboard/:userId' , async (req , res)=>{
+  const {userId} = req.params;
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
+  };
+  if(user.USER_ID != userId){ // show that we can't see other user's dashboard 
+    res.redirect(`/profile/${userId}`);
+    return;
+  }
+  
+  const query = 'SELECT NAME ,EMAIL , PHONE , INCOME FROM USER where USER_ID= ?';
+  // Finding the User's data 
+  const profile = await queryDatabase(query, [userId]);
+  
+  // Finding the listings which are not booked
+  const unbookedListingQuery = 'SELECT * FROM LISTING WHERE ID NOT IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID = ?'
+  const unbookedListing = await queryDatabase(unbookedListingQuery ,[userId])
+  // Finding the listings which are booked
+  const bookedListingQuery = 'SELECT * FROM LISTING WHERE ID IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID =? '
+  const bookedListing = await queryDatabase(bookedListingQuery ,[userId])
+  // Get Listing Booked By the Me 
+  const myBookingsQuery = 'SELECT * FROM LISTING WHERE ID IN (SELECT LISTING_ID FROM BOOKING WHERE USER_ID = ?) '
+  const myBookings = await queryDatabase(myBookingsQuery , [userId]);
+  res.render('dashboard.ejs' ,{profile ,user, bookedListing , unbookedListing , myBookings})
+})
+app.get('/listing/new' , async (req , res , next)=>{
+  res.render('newListing.ejs');
+})
 
-})
-app.get('/listing/new' , async (req , res)=>{
-  res.send("About to add new Listing");   
-})
 app.get('/listing/:id' , async (req , res)=>{
   const {id} =req.params;
   let user = {
@@ -267,7 +301,7 @@ app.get('/listing/:id' , async (req , res)=>{
   };
   
   // query to get listing and owner details using join query 
-  const listingDetailsQuery = 'SELECT LISTING.USER_ID , LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.ID = ?'
+  const listingDetailsQuery = 'SELECT LISTING.USER_ID ,LISTING.ID, LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.ID = ?'
   const listingDetails = (await queryDatabase(listingDetailsQuery , [id]))[0];
 
   // CHECKING IF THE GIVEN LISTING IS IN THE BOOKING TABLE 
@@ -279,7 +313,6 @@ app.get('/listing/:id' , async (req , res)=>{
   }else{
     res.render('listings' , {user ,listing : listingDetails})
   }
-
 });
 
 app.get('/filter' , async (req , res)=>{
@@ -307,7 +340,6 @@ app.get('/filter' , async (req , res)=>{
       properties=await queryDatabase(`SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING WHERE CITY="${city}" ORDER BY PRICEPERMONTH ${sort} LIMIT 50;` , []);
       locations=[{city:city}];
     }
-    
     res.render('index', {
       user,
       locations,
@@ -331,13 +363,53 @@ app.get('/search' ,async (req , res)=>{
   const getLocationQuery = "select distinct(city) from listing limit 50"
   const locations= await queryDatabase(getLocationQuery,[]);
 
-  res.render('index', {
+res.render('index', {
     user,
     locations,
     properties:listingDetails
   });
 })
 
+// Post Requests 
+app.post('/listing' ,upload.single('image'), async (req , res)=>{
+  let user = {
+    name:req.session.name==undefined?null:req.session.name,
+    USER_ID:req.session.userId 
+  };
+  if(user.USER_ID==undefined){
+    res.redirect('/login');
+    return;
+  }
+  
+  const {name , description , street , city , state , pincode , pricePerMonth , discount , size } = req.body ;
+  const Image_URL =  "..\\"+ req.file.path
+  const id =  uuidv4();
+  const dataInsertQuery = `INSERT INTO LISTING (IMAGE_URL , ID , USER_ID , NAME , DESCRIPTION , STREET , CITY , STATE , PINCODE ,PRICEPERMONTH,DISCOUNT , SIZE ,RATING ) VALUES 
+                            (? , ? , ? , ? , ? , ? , ? , ? , ? ,? , ? ,? ,?)`;
+  const InsertData = await queryDatabase(dataInsertQuery , [Image_URL,id ,user.USER_ID,name , description , street , city , state , pincode , pricePerMonth , discount , size ,1 ]);
+  res.redirect(`/listing/${id}`);
+})
+app.get('/book/:id' , async (req , res)=>{
+  // check if requesting user is same as listing owner -> Can't book
+  const {id} = req.params;
+  const userId = req.session.userId;
+  const listingData =(await queryDatabase('SELECT * FROM LISTING WHERE ID = ? ' , [id]))[0];
+  if(userId == listingData.USER_ID){
+    res.render('alert.ejs' , {message : "CAN'T BOOK OWN PROPERTY" , url : `/listing/${id}`});
+    return;
+  }
+  // update availability of listing 
+  await queryDatabase('UPDATE LISTING SET AVAILABILITY = FALSE WHERE ID = ?' , [id]);
+  // add new value in booking column 
+  await queryDatabase('INSERT INTO BOOKING (ID , USER_ID , LISTING_ID , START_DATE , END_DATE) VALUES (? , ? , ? , ? , ?) ' , [uuidv4(),userId , id , Date.now , Date.now+1])
+  res.render('alert.ejs' , {message : "Booking Made Successfully" , url:`dashboard/${userId}`})
+})
+app.delete('/listing/:id' , async (req , res)=>{
+  const {id} = req.params;
+  // await queryDatabase('DELETE FROM LISTING WHERE ID = ?' , [id]);
+  res.render('alert.ejs',{message:"Delete Listing SuccessFully " , url : `/dashboard/${req.session.userId}`});
+
+})
 
 // Start the server using the PORT from .env file
 const PORT = process.env.PORT || 8000;
