@@ -4,7 +4,8 @@
   "description": "Housing Rentals",
   "main": "index.js",
   "scripts": {
-    "test": "Na"
+    "test": "Na",
+     "start":"node Index.js"
   },
   "repository": {
     "type": "git",
