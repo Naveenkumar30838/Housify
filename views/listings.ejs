@@ -50,16 +50,16 @@
       <p><strong>Price per Month:</strong> ₹<%= listing.PRICEPERMONTH %></p>
       <p><strong>Discount:</strong> <%= listing.DISCOUNT %>%</p>
       <p><strong>Rating:</strong> <%= listing.RATING %> ⭐</p>
-      <p><strong>Owner:</strong> <a href="http://localhost:8000/profile/<%=listing.USER_ID %>"> <%= listing.OWNERNAME %> </a></p>
+      <p><strong>Owner:</strong> <a href="<%=baseUrl%>/profile/<%=listing.USER_ID %>"> <%= listing.OWNERNAME %> </a></p>
       <p>
         <strong>Availability:</strong> 
         <% if (listing.AVAILABILITY) { %>
           <span class="text-green-600 font-semibold">Available</span>
           <br>
-          <span class="text-blue-600 font-semibold"><a href="http://localhost:8000/book/<%=listing.ID %>">Book Now</a></span>
+          <span class="text-blue-600 font-semibold"><a href="<%=baseUrl%>/book/<%=listing.ID %>">Book Now</a></span>
         <% } else { %>
           <span class="text-red-600 font-semibold">Not Available</span>
-          <p><strong>Booked By:</strong> <a href="http://localhost:8000/profile/<%=bookingUser.USER_ID %>"> <%= bookingUser.NAME %> </a></p>
+          <p><strong>Booked By:</strong> <a href="<%=baseUrl%>/profile/<%=bookingUser.USER_ID %>"> <%= bookingUser.NAME %> </a></p>
         <% } %>
       </p>
     </div>

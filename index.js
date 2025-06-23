@@ -24,8 +24,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // to override post and get Request 
-app.use(methodOverride('_method'))
-
+app.use(methodOverride('_method'));
+app.use((req , res , next)=>{
+  res.locals.baseUrl=`${req.protocol}://${req.get('host')}`
+  next();
+});
 
 // Set up session middleware with MongoDB
 app.use(
@@ -126,7 +129,7 @@ app.get('/',async (req, res) => {
   
  // get all locations 
   const getLocationQuery = "select distinct(city) from listing limit 50"
-  const getPropertyQuery = "SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING LIMIT 50"
+  const getPropertyQuery = "SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING ORDER BY ID DESC LIMIT 50"
   const locations= await queryDatabase(getLocationQuery,[]);
   const properties= await queryDatabase(getPropertyQuery,[]);
 
@@ -351,8 +354,8 @@ app.get('/filter' , async (req , res)=>{
 app.get('/search' ,async (req , res)=>{
   const {query}= req.query;
 
-  const listingDetailsQuery = 'SELECT LISTING.USER_ID , LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.CITY = ?'
-  const listingDetails = await queryDatabase(listingDetailsQuery , [query]);
+  const listingDetailsQuery = 'SELECT LISTING.USER_ID , LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.CITY = ? or LISTING.STATE = ?'
+  const listingDetails = await queryDatabase(listingDetailsQuery , [query , query]);
  
   let user = {
     name:req.session.name==undefined?null:req.session.name,
@@ -406,8 +409,10 @@ app.get('/book/:id' , async (req , res)=>{
 })
 app.delete('/listing/:id' , async (req , res)=>{
   const {id} = req.params;
+  // verify if the original owner is deleting the listing or some other 
+  // remove that listing from case : listing is booked ()
   // await queryDatabase('DELETE FROM LISTING WHERE ID = ?' , [id]);
-  res.render('alert.ejs',{message:"Delete Listing SuccessFully " , url : `/dashboard/${req.session.userId}`});
+  res.render('alert.ejs',{message:"Deleting Listing SuccessFully " , url : `/dashboard/${req.session.userId}`});
 
 })
 
