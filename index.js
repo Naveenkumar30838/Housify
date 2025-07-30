@@ -31,20 +31,35 @@ app.use((req , res , next)=>{
 });
 
 // Set up session middleware with MongoDB
+
+let store = null;
+
+try {
+  if (process.env.MONGO_URL) {
+    const MongoStore = require("connect-mongo");
+    store = MongoStore.create({
+      mongoUrl: process.env.MONGO_URL,
+    });
+    console.log("✅ Using MongoDB session store");
+  } else {
+    console.log("⚠️ No MONGO_URL found, falling back to in-memory session store");
+  }
+} catch (err) {
+  console.log("⚠️ MongoDB store not available, using memory store:", err.message);
+}
+
 app.use(
-    session({
-      secret: 'your_session_secret', // Session secret key
-      resave: false,
-      saveUninitialized: true,
-      store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URL, // MongoDB URI for sessions
-      }),
-      cookie: {
-        secure: false, // Set to true if using HTTPS
-        maxAge: 60 * 60 * 1000, // 1 hour expiration
-      },
-    })
-  );
+  session({
+    secret: 'your_session_secret',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+      secure: false,
+      maxAge: 60 * 60 * 1000,
+    },
+  })
+);
+
 
 // Middleware to check if a user is authenticated
 const isAuthenticated = (req, res, next) => {
@@ -76,7 +91,7 @@ const upload = multer({storage})
 const connection = mysql.createConnection({
     host: 'localhost', // Replace with your database host
     user: 'root',      // Replace with your database username
-    password: process.env.SQLPASSWORD, // Replace with your database password
+    password: "", // Replace with your database password
     database: 'Housify'   // Replace with your database name
 });
 connection.connect((err) => {
@@ -245,27 +260,44 @@ app.get('/profile/:userId' ,async (req , res)=>{
     name:req.session.name==undefined?null:req.session.name,
     USER_ID:req.session.userId 
   };
+
   if(user.USER_ID==userId){
     res.redirect(`/dashboard/${userId}`);
     return;
   }
+
+  // 1. User profile
   const query = 'SELECT NAME ,EMAIL , PHONE , INCOME FROM USER where USER_ID= ?';
-  // Finding the User's data 
   const profile = await queryDatabase(query, [userId]);
   
-  // Finding the listings which are not booked
-  const unbookedListingQuery = 'SELECT * FROM LISTING WHERE ID NOT IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID = ?'
-  const unbookedListing = await queryDatabase(unbookedListingQuery ,[userId])
-  // OR SELECT * FROM LISTING INNER JOIN BOOKING ON LISTING.ID = BOOKING.LISTING_ID;
+  // 2. Unbooked listings
+  const unbookedListingQuery = 
+    'SELECT * FROM LISTING WHERE ID NOT IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID = ?';
+  const unbookedListing = await queryDatabase(unbookedListingQuery ,[userId]);
 
-  // Finding the listings which are booked
+  // 3. Booked listings
+  const bookedListingQuery = 
+    'SELECT * FROM LISTING WHERE ID IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID =? ';
+  const bookedListing = await queryDatabase(bookedListingQuery ,[userId]);
 
-  const bookedListingQuery = 'SELECT * FROM LISTING WHERE ID IN (SELECT LISTING_ID FROM BOOKING) AND USER_ID =? '
-  const bookedListing = await queryDatabase(bookedListingQuery ,[userId])
-  // OR SELECT LISTING.NAME , LISTING.ID , LISTING.IMAGE_URL , LISTING.USER_ID , LISTING.DESCRIPTION FROM LISTING INNER JOIN BOOKING ON LISTING.ID == BOOKING.LISTING_ID
-  
-  res.render('profile.ejs' ,{profile ,user, bookedListing , unbookedListing})
-})
+  // 4. Wishlist listings (✨ NEW ✨)
+  const wishlistQuery = `
+    SELECT l.* 
+    FROM WISHLIST w
+    JOIN LISTING l ON w.LISTING_ID = l.ID
+    WHERE w.USER_ID = ?`;
+  const wishlist = await queryDatabase(wishlistQuery, [userId]);
+
+  // 5. Render profile with wishlist
+  res.render('profile.ejs' ,{
+    profile,
+    user,
+    bookedListing,
+    unbookedListing,
+    wishlist   // 🔥 now available in EJS
+  });
+});
+
 app.get('/dashboard/:userId' , async (req , res)=>{
   const {userId} = req.params;
   let user = {
@@ -407,6 +439,45 @@ app.get('/book/:id' , async (req , res)=>{
   await queryDatabase('INSERT INTO BOOKING (ID , USER_ID , LISTING_ID , START_DATE , END_DATE) VALUES (? , ? , ? , ? , ?) ' , [uuidv4(),userId , id , Date.now , Date.now+1])
   res.render('alert.ejs' , {message : "Booking Made Successfully" , url:`dashboard/${userId}`})
 })
+app.post('/wishlist/add/:id', async (req, res) => {
+  const userId = req.session.userId;
+  const listingId = req.params.id;
+
+  if (!userId) {
+    return res.redirect('/login');
+  }
+
+  try {
+    await queryDatabase(
+      "INSERT INTO WISHLIST (USER_ID, LISTING_ID) VALUES (?, ?)",
+      [userId, listingId]
+    );
+    res.redirect(`/profile/${userId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error adding to wishlist");
+  }
+});
+
+app.post('/wishlist/remove/:id', async (req, res) => {
+  const userId = req.session.userId;
+  const listingId = req.params.id;
+
+  if (!userId) {
+    return res.redirect('/login');
+  }
+
+  try {
+    await queryDatabase(
+      "DELETE FROM WISHLIST WHERE USER_ID = ? AND LISTING_ID = ?",
+      [userId, listingId]
+    );
+    res.redirect(`/profile/${userId}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error removing from wishlist");
+  }
+});
 app.delete('/listing/:id' , async (req , res)=>{
   const {id} = req.params;
   // verify if the original owner is deleting the listing or some other 
