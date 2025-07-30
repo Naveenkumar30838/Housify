@@ -52,16 +52,37 @@
       <p><strong>Rating:</strong> <%= listing.RATING %> ⭐</p>
       <p><strong>Owner:</strong> <a href="<%=baseUrl%>/profile/<%=listing.USER_ID %>"> <%= listing.OWNERNAME %> </a></p>
       <p>
-        <strong>Availability:</strong> 
-        <% if (listing.AVAILABILITY) { %>
-          <span class="text-green-600 font-semibold">Available</span>
-          <br>
-          <span class="text-blue-600 font-semibold"><a href="<%=baseUrl%>/book/<%=listing.ID %>">Book Now</a></span>
-        <% } else { %>
-          <span class="text-red-600 font-semibold">Not Available</span>
-          <p><strong>Booked By:</strong> <a href="<%=baseUrl%>/profile/<%=bookingUser.USER_ID %>"> <%= bookingUser.NAME %> </a></p>
-        <% } %>
+  <strong>Availability:</strong> 
+  <% if (listing.AVAILABILITY) { %>
+    <span class="text-green-600 font-semibold">Available</span>
+    <br>
+    <span class="text-blue-600 font-semibold">
+      <a href="<%=baseUrl%>/book/<%=listing.ID %>">Book Now</a>
+    </span>
+
+    <!-- ❤️ Add to Wishlist button -->
+    <% if (user && user.USER_ID) { %>
+      <form action="/wishlist/add/<%= listing.ID %>" method="POST" class="mt-3">
+        <button type="submit" 
+                class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600">
+          ❤️ Add to Wishlist
+        </button>
+      </form>
+    <% } else { %>
+      <p class="text-gray-500 mt-3">
+        <a href="/login" class="text-blue-600 hover:underline">Login</a> to save this property.
       </p>
+    <% } %>
+
+  <% } else { %>
+    <span class="text-red-600 font-semibold">Not Available</span>
+    <p>
+      <strong>Booked By:</strong> 
+      <a href="<%=baseUrl%>/profile/<%=bookingUser.USER_ID %>"><%= bookingUser.NAME %></a>
+    </p>
+  <% } %>
+</p>
+
     </div>
 
   </section>
