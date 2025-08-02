@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Rental Property</title>
@@ -7,71 +8,276 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.0.4/dist/tailwind.min.css" rel="stylesheet">
 
 </head>
+
 <body class="bg-gray-100 min-h-screen p-4">
   <!-- Top Bar -->
   <%- include('includes/header.ejs') %>
-  <!-- Filters -->
-  <form action="/filter" method="GET" class="bg-white p-4 rounded shadow mb-6 flex gap-4 flex-wrap">
-    <!-- City Dropdown -->
-    <div>
-      <label for="city" class="block mb-1 font-medium">City</label>
-      <select name="city" id="city" class="p-2 border rounded">
-        
-        <option value="">All</option>
-        <% for (const location of locations) { %>
-          <option value="<%= location.city %>"><%= location.city %></option>
-        <% }%>
-        
-      </select>
-    </div>
+    <!-- Filters -->
+    <form action="/filter" method="GET" class="bg-white p-4 rounded shadow mb-6 flex gap-4 flex-wrap">
+      <!-- City Dropdown -->
+      <div>
+        <label for="city" class="block mb-1 font-medium">City</label>
+        <select name="city" id="city" class="p-2 border rounded">
 
-    <!-- Price Sorting -->
-    <div>
-      <label for="sort" class="block mb-1 font-medium">Sort by Price</label>
-      <select name="sort" id="sort" class="p-2 border rounded">
-        <option value="">None</option>
-        <option value="ASC">Low to High</option>
-        <option value="DESC">High to Low</option>
-      </select>
-    </div>
+          <option value="">All</option>
+          <% for (const location of locations) { %>
+            <option value="<%= location.city %>">
+              <%= location.city %>
+            </option>
+            <% }%>
 
-    <div class="self-end">
-      <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Apply Filters</button>
-    </div>
-  </form>
+        </select>
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <% if(properties.length==0){ %>
-      <h2>NO PROPERTIES</h2>
-    <% }else{ %>
-      <% properties.forEach(property => { %>
-        <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
-          <img src="<%= property.IMAGE_URL %>" alt="Property Image" class="w-full h-48 object-cover">
-          
-          <div class="p-4">
-            <!-- Clickable Name -->
-            <h2 class="text-xl font-semibold text-blue-600 hover:underline">
-              <a href="/listing/<%= property.ID %>"><%= property.NAME %></a>
-            </h2>
-    
-            <!-- Location -->
-            <p class="text-gray-600 text-sm"><%= property.CITY %>, <%= property.STATE %></p>
-    
-            <!-- Price -->
-            <p class="mt-2 text-green-600 font-semibold">₹<%= property.PRICEPERMONTH %>/month</p>
-    
-            <!-- Star Rating -->
-            <div class="mt-2 text-yellow-500">
-              <% for (let i = 0; i < property.RATING; i++) { %>
-                ⭐
-              <% } %>
-              <span class="text-sm text-gray-700 ml-1">(<%= property.RATING %>)</span>
-            </div>
+      <!-- Price Range Filter -->
+      <div>
+        <label class="block mb-1 font-medium">Price Range (₹/month)</label>
+
+        <!-- Min/Max Input Fields -->
+        <div class="flex gap-2 mb-2">
+          <input type="number" name="minPrice" id="minPrice" placeholder="Min"
+            class="price-input p-2 border rounded w-24" min="0" value="">
+          <span class="self-center text-gray-400">–</span>
+          <input type="number" name="maxPrice" id="maxPrice" placeholder="Max"
+            class="price-input p-2 border rounded w-24" min="0" value="">
+        </div>
+
+        <!-- Range Slider -->
+        <div class="relative w-48">
+          <div class="relative h-2 bg-gray-200 rounded-lg mb-6">
+            <div id="sliderTrack" class="absolute h-2 bg-blue-500 rounded-lg"></div>
+            <input type="range" id="priceRangeMin" min="0" max="100000" value="0" step="1000"
+              class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb z-10">
+            <input type="range" id="priceRangeMax" min="0" max="100000" value="100000" step="1000"
+              class="absolute w-full h-2 bg-transparent appearance-none cursor-pointer slider-thumb z-10">
+          </div>
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>₹0</span>
+            <span>₹1L+</span>
           </div>
         </div>
-      <% }) %>
-    <% }%>
-  </div>
-  
+      </div>
+
+      <!-- Price Sorting -->
+      <div>
+        <label for="sort" class="block mb-1 font-medium">Sort by Price</label>
+        <select name="sort" id="sort" class="p-2 border rounded">
+          <option value="">None</option>
+          <option value="ASC">Low to High</option>
+          <option value="DESC">High to Low</option>
+        </select>
+      </div>
+
+      <div class="self-end">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Apply Filters</button>
+      </div>
+    </form>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if(properties.length==0){ %>
+        <h2>NO PROPERTIES</h2>
+        <% }else{ %>
+          <% properties.forEach(property=> { %>
+            <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-300">
+              <img src="<%= property.IMAGE_URL %>" alt="Property Image" class="w-full h-48 object-cover">
+
+              <div class="p-4">
+                <!-- Clickable Name -->
+                <h2 class="text-xl font-semibold text-blue-600 hover:underline">
+                  <a href="/listing/<%= property.ID %>">
+                    <%= property.NAME %>
+                  </a>
+                </h2>
+
+                <!-- Location -->
+                <p class="text-gray-600 text-sm">
+                  <%= property.CITY %>, <%= property.STATE %>
+                </p>
+
+                <!-- Price -->
+                <p class="mt-2 text-green-600 font-semibold">₹<%= property.PRICEPERMONTH %>/month</p>
+
+                <!-- Star Rating -->
+                <div class="mt-2 text-yellow-500">
+                  <% for (let i=0; i < property.RATING; i++) { %>
+                    ⭐
+                    <% } %>
+                      <span class="text-sm text-gray-700 ml-1">(<%= property.RATING %>)</span>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+              <% }%>
+    </div>
+
+    <style>
+      /* Custom styling for dual range slider */
+      .slider-thumb {
+        pointer-events: none;
+        outline: none;
+      }
+
+      .slider-thumb::-webkit-slider-thumb {
+        appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        pointer-events: auto;
+        border: 2px solid white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+      }
+
+      .slider-thumb::-webkit-slider-thumb:hover {
+        background: #2563eb;
+        transform: scale(1.1);
+        box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+      }
+
+      .slider-thumb::-moz-range-thumb {
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        pointer-events: auto;
+        border: 2px solid white;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        transition: all 0.2s ease;
+      }
+
+      /* Track styling */
+      .slider-thumb::-webkit-slider-track {
+        background: transparent;
+        height: 6px;
+        border-radius: 3px;
+      }
+
+      .slider-thumb::-moz-range-track {
+        background: transparent;
+        height: 6px;
+        border-radius: 3px;
+      }
+
+      /* Remove focus outline */
+      .slider-thumb:focus {
+        outline: none;
+      }
+
+      .slider-thumb:focus::-webkit-slider-thumb {
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2), 0 1px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      /* Input field styling - simplified to match existing inputs */
+      .price-input {
+        transition: border-color 0.2s ease;
+      }
+
+      .price-input:focus {
+        border-color: #3b82f6;
+        outline: none;
+      }
+    </style>
+
+    <script>
+      // Price range slider functionality
+      const minSlider = document.getElementById('priceRangeMin');
+      const maxSlider = document.getElementById('priceRangeMax');
+      const minInput = document.getElementById('minPrice');
+      const maxInput = document.getElementById('maxPrice');
+      const sliderTrack = document.getElementById('sliderTrack');
+
+      // Update the visual track between handles
+      function updateSliderTrack() {
+        const min = parseInt(minSlider.value);
+        const max = parseInt(maxSlider.value);
+        const minPercent = (min / 100000) * 100;
+        const maxPercent = (max / 100000) * 100;
+
+        sliderTrack.style.left = minPercent + '%';
+        sliderTrack.style.width = (maxPercent - minPercent) + '%';
+      }
+
+      // Sync sliders with input fields
+      function updateInputs() {
+        minInput.value = minSlider.value;
+        maxInput.value = maxSlider.value;
+        updateSliderTrack();
+      }
+
+      function updateSliders() {
+        if (minInput.value !== '') {
+          minSlider.value = Math.min(minInput.value, maxSlider.value - 1000);
+        }
+        if (maxInput.value !== '') {
+          maxSlider.value = Math.max(maxInput.value, minSlider.value + 1000);
+        }
+        updateSliderTrack();
+      }
+
+      // Ensure min doesn't exceed max
+      function validateRange() {
+        if (parseInt(minSlider.value) >= parseInt(maxSlider.value)) {
+          minSlider.value = maxSlider.value - 1000;
+        }
+        updateInputs();
+      }
+
+      // Event listeners
+      minSlider.addEventListener('input', function () {
+        validateRange();
+      });
+
+      maxSlider.addEventListener('input', function () {
+        if (parseInt(maxSlider.value) <= parseInt(minSlider.value)) {
+          maxSlider.value = parseInt(minSlider.value) + 1000;
+        }
+        updateInputs();
+      });
+
+      minInput.addEventListener('input', updateSliders);
+      maxInput.addEventListener('input', updateSliders);
+
+      // Initialize
+      updateInputs();
+
+      // Handle form submission to include empty values
+      document.querySelector('form').addEventListener('submit', function (e) {
+        // If min/max inputs are empty, don't include them in the form submission
+        if (minInput.value === '' || minInput.value === '0') {
+          minInput.removeAttribute('name');
+        }
+        if (maxInput.value === '' || maxInput.value === '100000') {
+          maxInput.removeAttribute('name');
+        }
+      });
+
+      // Preserve filter values on page load
+      window.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const city = urlParams.get('city');
+        const sort = urlParams.get('sort');
+        const minPrice = urlParams.get('minPrice');
+        const maxPrice = urlParams.get('maxPrice');
+
+        if (city) document.getElementById('city').value = city;
+        if (sort) document.getElementById('sort').value = sort;
+        if (minPrice) {
+          document.getElementById('minPrice').value = minPrice;
+          document.getElementById('priceRangeMin').value = minPrice;
+        }
+        if (maxPrice) {
+          document.getElementById('maxPrice').value = maxPrice;
+          document.getElementById('priceRangeMax').value = maxPrice;
+        }
+
+        // Update track on page load
+        updateSliderTrack();
+      });
+    </script>
+
 </body>
+
 </html>
