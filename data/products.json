@@ -1,0 +1,202 @@
+﻿[
+  {
+    "id": 1,
+    "name": "Modern Sofa Set",
+    "category": "furniture",
+    "subcategory": "living-room",
+    "price": 45000,
+    "originalPrice": 55000,
+    "description": "Comfortable 3-seater sofa with premium fabric upholstery and wooden frame",
+    "imageUrl": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500",
+    "rating": 4.5,
+    "reviews": 128,
+    "inStock": true,
+    "tags": ["modern", "comfortable", "premium", "3-seater"],
+    "specifications": {
+      "material": "Fabric & Wood",
+      "dimensions": "200cm x 90cm x 85cm",
+      "weight": "45kg",
+      "color": "Grey"
+    }
+  },
+  {
+    "id": 2,
+    "name": "LED Smart TV 55\"",
+    "category": "electronics",
+    "subcategory": "entertainment",
+    "price": 42000,
+    "originalPrice": 48000,
+    "description": "4K Ultra HD Smart LED TV with built-in WiFi and streaming apps",
+    "imageUrl": "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500",
+    "rating": 4.7,
+    "reviews": 256,
+    "inStock": true,
+    "tags": ["smart", "4k", "led", "entertainment"],
+    "specifications": {
+      "screenSize": "55 inches",
+      "resolution": "4K Ultra HD",
+      "connectivity": "WiFi, Bluetooth, HDMI",
+      "brand": "Samsung"
+    }
+  },
+  {
+    "id": 3,
+    "name": "Wooden Dining Table",
+    "category": "furniture",
+    "subcategory": "dining-room",
+    "price": 28000,
+    "originalPrice": 32000,
+    "description": "Solid wood dining table for 6 people with elegant finish",
+    "imageUrl": "https://images.unsplash.com/photo-1549497538-303791108f95?w=500",
+    "rating": 4.3,
+    "reviews": 89,
+    "inStock": true,
+    "tags": ["wooden", "dining", "6-seater", "elegant"],
+    "specifications": {
+      "material": "Solid Wood",
+      "dimensions": "180cm x 90cm x 75cm",
+      "seatingCapacity": "6 people",
+      "finish": "Natural Wood"
+    }
+  },
+  {
+    "id": 4,
+    "name": "Refrigerator Double Door",
+    "category": "appliances",
+    "subcategory": "kitchen",
+    "price": 35000,
+    "originalPrice": 40000,
+    "description": "Energy efficient double door refrigerator with frost-free technology",
+    "imageUrl": "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500",
+    "rating": 4.4,
+    "reviews": 167,
+    "inStock": true,
+    "tags": ["energy-efficient", "frost-free", "double-door", "kitchen"],
+    "specifications": {
+      "capacity": "260 Liters",
+      "type": "Double Door",
+      "energyRating": "4 Star",
+      "brand": "LG"
+    }
+  },
+  {
+    "id": 5,
+    "name": "Queen Size Bed",
+    "category": "furniture",
+    "subcategory": "bedroom",
+    "price": 22000,
+    "originalPrice": 26000,
+    "description": "Comfortable queen size bed with storage and premium mattress",
+    "imageUrl": "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=500",
+    "rating": 4.6,
+    "reviews": 203,
+    "inStock": true,
+    "tags": ["queen-size", "storage", "comfortable", "bedroom"],
+    "specifications": {
+      "size": "Queen (150cm x 200cm)",
+      "material": "Engineered Wood",
+      "storage": "Yes",
+      "mattressIncluded": "Yes"
+    }
+  },
+  {
+    "id": 6,
+    "name": "Gaming Laptop",
+    "category": "electronics",
+    "subcategory": "computers",
+    "price": 75000,
+    "originalPrice": 85000,
+    "description": "High-performance gaming laptop with dedicated graphics card",
+    "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=500",
+    "rating": 4.8,
+    "reviews": 324,
+    "inStock": true,
+    "tags": ["gaming", "laptop", "high-performance", "graphics"],
+    "specifications": {
+      "processor": "Intel i7",
+      "ram": "16GB DDR4",
+      "storage": "512GB SSD",
+      "graphics": "NVIDIA GTX 1660Ti"
+    }
+  },
+  {
+    "id": 7,
+    "name": "Bluetooth Speaker",
+    "category": "electronics",
+    "subcategory": "audio",
+    "price": 3500,
+    "originalPrice": 4500,
+    "description": "Portable Bluetooth speaker with deep bass and long battery life",
+    "imageUrl": "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500",
+    "rating": 4.4,
+    "reviews": 198,
+    "inStock": true,
+    "tags": ["bluetooth", "portable", "speaker", "bass"],
+    "specifications": {
+      "connectivity": "Bluetooth 5.0",
+      "batteryLife": "12 hours",
+      "waterResistant": "IPX7",
+      "power": "20W"
+    }
+  },
+  {
+    "id": 8,
+    "name": "Air Conditioner Split AC",
+    "category": "appliances",
+    "subcategory": "cooling",
+    "price": 28000,
+    "originalPrice": 33000,
+    "description": "1.5 Ton split AC with inverter technology and copper coil",
+    "imageUrl": "https://images.unsplash.com/photo-1631545806609-c2b999c8f4c6?w=500",
+    "rating": 4.5,
+    "reviews": 189,
+    "inStock": true,
+    "tags": ["split-ac", "inverter", "copper-coil", "cooling"],
+    "specifications": {
+      "capacity": "1.5 Ton",
+      "type": "Split AC",
+      "energyRating": "3 Star",
+      "coilMaterial": "Copper"
+    }
+  },
+  {
+    "id": 9,
+    "name": "Office Chair Ergonomic",
+    "category": "furniture",
+    "subcategory": "office",
+    "price": 8500,
+    "originalPrice": 12000,
+    "description": "Ergonomic office chair with lumbar support and adjustable height",
+    "imageUrl": "https://images.unsplash.com/photo-1541558869434-2840d308329a?w=500",
+    "rating": 4.1,
+    "reviews": 76,
+    "inStock": true,
+    "tags": ["ergonomic", "office", "adjustable", "lumbar-support"],
+    "specifications": {
+      "material": "Mesh & Plastic",
+      "adjustableHeight": "Yes",
+      "lumbarSupport": "Yes",
+      "armrests": "Adjustable"
+    }
+  },
+  {
+    "id": 10,
+    "name": "Coffee Table Glass",
+    "category": "furniture",
+    "subcategory": "living-room",
+    "price": 15000,
+    "originalPrice": 18000,
+    "description": "Modern glass coffee table with metal frame",
+    "imageUrl": "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500",
+    "rating": 4.2,
+    "reviews": 67,
+    "inStock": false,
+    "tags": ["glass", "coffee-table", "modern", "metal-frame"],
+    "specifications": {
+      "material": "Tempered Glass & Metal",
+      "dimensions": "120cm x 60cm x 45cm",
+      "shape": "Rectangular",
+      "weight": "18kg"
+    }
+  }
+]
