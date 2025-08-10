@@ -51,6 +51,11 @@ fillDataBase();
 // Setup routes
 setupRoutes(app);
 
+// ================= PRODUCT CATALOG INTEGRATION =================
+// Load product routes
+const productRoutes = require('./productRoutes');
+productRoutes(app);
+
 // Start the server using the PORT from .env file
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
