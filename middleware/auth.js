@@ -15,18 +15,17 @@ const getUserFromSession = (req, res, next) => {
   next();
 };
 
-// Middleware to check if user is logged in for upload
-const checkAuthForUpload = (req, res, next) => {
+// Middleware to check if user is logged in for all (upload, add a new Listing)
+const checkAuth = (req, res, next) => {
   const userId = req.session.userId;
   if (!userId) {
-    res.render("login.ejs");
-    return;
+    return res.redirect("/login"); // redirect to login URL instead of rendering login.ejs
   }
   next();
 };
 
-module.exports = {
+export default {
   isAuthenticated,
   getUserFromSession,
-  checkAuthForUpload,
+  checkAuth,
 };
