@@ -59,7 +59,8 @@ const listingController = {
         size,
       } = req.body;
       
-      const Image_URL = "..\\" + req.file.path;
+      // Use the Cloudinary image URL from req.file.path
+      const Image_URL = req.file.path;  // <-- this is the Cloudinary URL
       const id = uuidv4();
       
       const dataInsertQuery = `INSERT INTO LISTING (IMAGE_URL , ID , USER_ID , NAME , DESCRIPTION , STREET , CITY , STATE , PINCODE ,PRICEPERMONTH,DISCOUNT , SIZE ,RATING ) VALUES 
