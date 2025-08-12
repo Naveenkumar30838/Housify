@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const uploadController = require("../controllers/uploadController");
 const upload = require("../config/multer");
-const { checkAuthForUpload } = require("../middleware/auth");
+const { checkAuth } = require("../middleware/auth").default;
 
 // Upload routes
-router.post("/", checkAuthForUpload, upload.single("image"), uploadController.uploadFile);
+router.post("/", checkAuth, upload.single("image"), uploadController.uploadFile);
 
 module.exports = router;
