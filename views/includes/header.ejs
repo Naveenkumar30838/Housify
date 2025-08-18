@@ -1,47 +1,148 @@
-﻿<div class="flex justify-between items-center mb-6 px-6 py-4 bg-yellow shadow-md">
-
-    <!-- Left: Website Logo/Name and Navigation -->
-    <div class="flex items-center space-x-6">
-      <div class="text-2xl font-bold text-blue-600">
-        <a href="/">Housify</a>
-      </div>
-      <nav class="hidden md:flex space-x-4">
-        <a href="/" class="text-gray-700 hover:text-blue-600 font-medium">Properties</a>
-        <a href="/products" class="text-gray-700 hover:text-blue-600 font-medium">Products</a>
-      </nav>
-    </div>
-  
-    <!-- Center: Search -->
-    <form action="/search" method="GET" class="flex flex-grow max-w-xl mx-8">
-      <input 
-        type="text" 
-        name="query" 
-        placeholder="Search property Locations..." 
-        class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400" 
+﻿<div class="bg-yellow shadow-md">
+  <div class="flex justify-between items-center px-6 py-4">
+    <!-- Left: Logo + Hamburger -->
+    <div class="flex items-center space-x-4">
+      <a href="/" class="text-2xl font-bold text-blue-600">Housify</a>
+      <!-- Hamburger (Mobile) -->
+      <button
+        id="menu-toggle"
+        class="md:hidden text-gray-700 focus:outline-none"
       >
-      <button type="submit" class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Center: Search -->
+    <form
+      action="/search"
+      method="GET"
+      class="hidden md:flex flex-grow max-w-xl mx-4"
+    >
+      <input
+        type="text"
+        name="query"
+        placeholder="Search property Locations..."
+        class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600"
+      >
         Search
       </button>
     </form>
-  
-    <!-- Right: Auth Buttons / Profile -->
-    <div class="flex items-center space-x-4">
+
+    <!-- Right: Auth/Profile (Desktop) -->
+    <div class="hidden md:flex items-center space-x-4">
       <% if (!user || !user.name) { %>
-        <!-- User not logged in -->
-        <a href="/login" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Login</a>
-        <a href="/signup" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</a>
+      <a
+        href="/login"
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >Login</a
+      >
+      <a
+        href="/signup"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >Sign Up</a
+      >
       <% } else { %>
-        <a href="/profile/<%= user.USER_ID%>" class="relative block">
-          <div class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full text-lg font-semibold hover:bg-blue-600">
-            <%= user.name.charAt(0).toUpperCase() %>
-          </div>
-        </a>
-        <form action="/logout" method="GET">
-          <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
-            Logout
-          </button>
-        </form>
+      <a href="/profile/<%= user.USER_ID%>" class="relative block">
+        <div
+          class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full text-lg font-semibold hover:bg-blue-600"
+        >
+          <%= user.name.charAt(0).toUpperCase() %>
+        </div>
+      </a>
+      <form action="/logout" method="GET">
+        <button
+          type="submit"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </form>
       <% } %>
     </div>
+  </div>
 
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 space-y-4">
+    <nav class="space-y-2">
+      <a href="/" class="block text-gray-700 hover:text-blue-600 font-medium"
+        >Properties</a
+      >
+      <a
+        href="/products"
+        class="block text-gray-700 hover:text-blue-600 font-medium"
+        >Products</a
+      >
+    </nav>
+
+    <!-- Mobile Search -->
+    <form action="/search" method="GET" class="flex mt-2">
+      <input
+        type="text"
+        name="query"
+        placeholder="Search property Locations..."
+        class="flex-grow p-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
+      <button
+        type="submit"
+        class="bg-blue-500 text-white px-4 rounded-r-lg hover:bg-blue-600"
+      >
+        Search
+      </button>
+    </form>
+
+    <!-- Auth/Profile (Mobile) -->
+    <div class="space-y-2 mt-4">
+      <% if (!user || !user.name) { %>
+      <a
+        href="/login"
+        class="block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        >Login</a
+      >
+      <a
+        href="/signup"
+        class="block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >Sign Up</a
+      >
+      <% } else { %>
+      <a href="/profile/<%= user.USER_ID%>" class="flex items-center space-x-2">
+        <div
+          class="w-10 h-10 flex items-center justify-center bg-blue-500 text-white rounded-full text-lg font-semibold"
+        >
+          <%= user.name.charAt(0).toUpperCase() %>
+        </div>
+        <span class="font-medium"><%= user.name %></span>
+      </a>
+      <form action="/logout" method="GET">
+        <button
+          type="submit"
+          class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </form>
+      <% } %>
+    </div>
+  </div>
 </div>
+
+<script>
+  document.getElementById("menu-toggle").addEventListener("click", function () {
+    document.getElementById("mobile-menu").classList.toggle("hidden");
+  });
+</script>
