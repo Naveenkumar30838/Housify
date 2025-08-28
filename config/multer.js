@@ -1,14 +1,5 @@
-const multer = require("multer");
-
-// Multer setup for file uploads
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    return cb(null, "./uploads");
-  },
-  filename: function (req, file, cb) {
-    return cb(null, Date.now() + "-" + file.originalname);
-  },
-});
+const multer = require("multer"); // to parse form's data we are using multer
+const { storage } = require("../cloudConfig.js"); // multer was uploading our file in a folder but now we will upload it on cloudinary.
 
 const upload = multer({ storage });
 
