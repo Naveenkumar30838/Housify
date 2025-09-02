@@ -1,20 +1,21 @@
-const { queryDatabase } = require("../config/database");
+// const { queryDatabase } = require("../config/database");
 
 const homeController = {
   // GET /
   getHome: async (req, res) => {
     try {
       // get all locations
-      const getLocationQuery = "select distinct(city) from listing limit 50";
-      const getPropertyQuery =
-        "SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING ORDER BY ID DESC LIMIT 50";
-      const locations = await queryDatabase(getLocationQuery, []);
-      const properties = await queryDatabase(getPropertyQuery, []);
+      // const getLocationQuery = "select distinct(city) from listing limit 50";
+      // const getPropertyQuery =
+      //   "SELECT IMAGE_URL,ID , NAME,CITY , STATE , PRICEPERMONTH,RATING FROM LISTING ORDER BY ID DESC LIMIT 50";
+      // const locations = await queryDatabase(getLocationQuery, []);
+      // const properties = await queryDatabase(getPropertyQuery, []);
 
+      // Render with empty data for frontend-only mode
       res.render("index", {
         user: req.user,
-        locations,
-        properties,
+        locations: [],
+        properties: [],
       });
     } catch (error) {
       console.error("Error in getHome:", error);
