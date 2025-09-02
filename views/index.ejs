@@ -14,19 +14,23 @@
   <%- include('includes/header.ejs') %>
     <!-- Filters -->
     <form action="/filter" method="GET" class="bg-white p-4 rounded shadow mb-6 flex gap-4 flex-wrap">
-      <!-- City Dropdown -->
+      <!-- City Search and Dropdown -->
       <div>
+        <label for="cityKeyword" class="block mb-1 font-medium">Search City</label>
+        <input type="text" name="cityKeyword" id="cityKeyword" value="<%= cityKeyword || '' %>" placeholder="Type to filter cities..." class="p-2 border rounded w-40 mb-2">
+        
         <label for="city" class="block mb-1 font-medium">City</label>
         <select name="city" id="city" class="p-2 border rounded">
-
-          <option value="">All</option>
+          <option value="">All Cities</option>
           <% for (const location of locations) { %>
-            <option value="<%= location.city %>">
-              <%= location.city %>
-            </option>
-            <% }%>
-
+            <option value="<%= location.city %>" <%= selectedCity === location.city ? 'selected' : '' %>><%= location.city %></option>
+          <% } %>
         </select>
+        
+        <div class="mt-2">
+          <button type="submit" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">Search</button>
+          <button type="button" onclick="clearFilters()" class="bg-gray-400 text-white px-3 py-1 rounded text-sm ml-2">Clear</button>
+        </div>
       </div>
 
       <!-- Price Range Filter -->
@@ -261,9 +265,11 @@
         const sort = urlParams.get('sort');
         const minPrice = urlParams.get('minPrice');
         const maxPrice = urlParams.get('maxPrice');
+        const cityKeyword = urlParams.get('cityKeyword');
 
         if (city) document.getElementById('city').value = city;
         if (sort) document.getElementById('sort').value = sort;
+        if (cityKeyword) document.getElementById('cityKeyword').value = cityKeyword;
         if (minPrice) {
           document.getElementById('minPrice').value = minPrice;
           document.getElementById('priceRangeMin').value = minPrice;
@@ -275,7 +281,54 @@
 
         // Update track on page load
         updateSliderTrack();
+        
+        // Filter dropdown options based on keyword
+        filterDropdownOptions();
       });
+
+      // Function to filter dropdown options based on search keyword
+      function filterDropdownOptions() {
+        const keyword = document.getElementById('cityKeyword').value.toLowerCase();
+        const dropdown = document.getElementById('city');
+        const options = dropdown.querySelectorAll('option');
+        
+        // Show all options first
+        options.forEach(option => {
+          option.style.display = '';
+        });
+        
+        // Hide options that don't match keyword (except "All" option)
+        if (keyword.trim() !== '') {
+          options.forEach(option => {
+            if (option.value !== '' && !option.text.toLowerCase().includes(keyword)) {
+              option.style.display = 'none';
+            }
+          });
+        }
+      }
+
+      // Add event listener for city search with debounce
+      let searchTimeout;
+      document.getElementById('cityKeyword').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(filterDropdownOptions, 300);
+      });
+
+      // Clear filters function
+      function clearFilters() {
+        document.getElementById('cityKeyword').value = '';
+        document.getElementById('city').value = '';
+        document.getElementById('minPrice').value = '';
+        document.getElementById('maxPrice').value = '';
+        document.getElementById('sort').value = '';
+        document.getElementById('priceRangeMin').value = 0;
+        document.getElementById('priceRangeMax').value = 100000;
+        updateSliderTrack();
+        filterDropdownOptions();
+        
+        // Redirect to home page to show all properties
+        window.location.href = '/';
+      }
     </script>
 
 </body>

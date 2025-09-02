@@ -1,15 +1,15 @@
 const express = require("express");
 const path = require("path");
 const methodOverride = require("method-override");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
+// const session = require("express-session");
+// const MongoStore = require("connect-mongo");
 require("dotenv").config();
 
 const app = express();
 
 // Import configurations and utilities
-const { connectMongoDB } = require("./config/database");
-const { fillDataBase } = require("./config/dbInit");
+// const { connectMongoDB } = require("./config/database");
+// const { fillDataBase } = require("./config/dbInit");
 const setupRoutes = require("./routes/index");
 
 // ------- MiddleWares --------------
@@ -29,24 +29,24 @@ app.use((req, res, next) => {
 });
 
 // Set up session middleware with MongoDB
-app.use(
-  session({
-    secret: "your_session_secret", // Session secret key
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_URL, // MongoDB URI for sessions
-    }),
-    cookie: {
-      secure: false, // Set to true if using HTTPS
-      maxAge: 60 * 60 * 1000, // 1 hour expiration
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: "your_session_secret", // Session secret key
+//     resave: false,
+//     saveUninitialized: true,
+//     store: MongoStore.create({
+//       mongoUrl: process.env.MONGO_URL, // MongoDB URI for sessions
+//     }),
+//     cookie: {
+//       secure: false, // Set to true if using HTTPS
+//       maxAge: 60 * 60 * 1000, // 1 hour expiration
+//     },
+//   })
+// );
 
 // Connect to databases
-connectMongoDB();
-fillDataBase();
+// connectMongoDB();
+// fillDataBase();
 
 // Setup routes
 setupRoutes(app);
