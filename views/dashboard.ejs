@@ -41,13 +41,12 @@
         <a href="/login" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Login</a>
         <a href="/signup" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sign Up</a>
       <% } else { %>
+        <a href="/listing/new" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add New Listing</a>
         <form action="/logout" method="GET">
           <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
             Logout
           </button>
         </form>
-        <a href="/listing/new" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add New Listing</a>
-
       <% } %>
     </div>
 
