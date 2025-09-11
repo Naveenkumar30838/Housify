@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const homeController = require("../controllers/homeController");
-const { getUserFromSession } = require("../middleware/auth");
+const { getUserFromSession } = require("../middleware/auth").default;
 
 // Apply getUserFromSession middleware to all routes
 router.use(getUserFromSession);

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "Na",
-     "start":"node Index.js"
+    "start": "node Index.js"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
   "dependencies": {
     "@faker-js/faker": "^9.7.0",
     "@sanity/image-url": "^1.1.0",
+    "cloudinary": "^2.7.0",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.5.0",
     "ejs": "^3.1.10",
@@ -32,6 +33,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^8.13.2",
     "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.14.0",
     "nodemon": "^3.1.9",
     "pexels": "^1.4.0",
