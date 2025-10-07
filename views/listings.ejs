@@ -66,5 +66,55 @@
 
   </section>
 
+  <!-- Reviews Section -->
+  <section class="max-w-5xl mx-auto px-6 pb-14">
+    <h2 class="text-2xl font-bold mb-4">Reviews</h2>
+
+    <% if (reviews && reviews.length > 0) { %>
+      <div class="space-y-4 mb-8">
+        <% reviews.forEach(r => { %>
+          <div class="border rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <div class="font-semibold"><a href="<%=baseUrl%>/profile/<%= r.REVIEWER_ID %>"><%= r.REVIEWER_NAME %></a></div>
+              <div class="text-yellow-500">
+                <% for (let i = 0; i < r.RATING; i++) { %>⭐<% } %>
+              </div>
+            </div>
+            <p class="mt-2 text-gray-700"><%= r.COMMENT %></p>
+            <p class="mt-1 text-xs text-gray-500"><%= new Date(r.CREATED_AT).toLocaleString() %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <p class="text-gray-600 mb-8">No reviews yet. Be the first to review this property.</p>
+    <% } %>
+
+    <% if (user && user.USER_ID && canReview) { %>
+      <div class="border rounded-lg p-6">
+        <h3 class="text-xl font-semibold mb-3">Leave a Review</h3>
+        <form action="<%=baseUrl%>/listing/<%= listing.ID %>/review" method="POST" class="space-y-4">
+          <div>
+            <label for="rating" class="block text-sm font-medium mb-1">Rating</label>
+            <select id="rating" name="rating" required class="border rounded px-3 py-2 w-32">
+              <option value="">Select</option>
+              <option value="5">★★★★★</option>
+              <option value="4">★★★★</option>
+              <option value="3">★★★</option>
+              <option value="2">★★</option>
+              <option value="1">★</option>
+            </select>
+          </div>
+          <div>
+            <label for="comment" class="block text-sm font-medium mb-1">Comment</label>
+            <textarea id="comment" name="comment" rows="4" required class="w-full border rounded px-3 py-2" placeholder="Share your experience..."></textarea>
+          </div>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Submit Review</button>
+        </form>
+      </div>
+    <% } else { %>
+      <p class="text-gray-500 text-sm">You must have booked this property to leave a review.</p>
+    <% } %>
+  </section>
+
 </body>
 </html>

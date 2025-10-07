@@ -22,6 +22,22 @@ const listingController = {
         "SELECT LISTING.USER_ID ,LISTING.ID, LISTING.NAME ,LISTING.IMAGE_URL, LISTING.DESCRIPTION , LISTING.STREET , LISTING.CITY , LISTING.STATE, LISTING.PINCODE , LISTING.PRICEPERMONTH , LISTING.DISCOUNT , LISTING.SIZE , LISTING.RATING,LISTING.AVAILABILITY , USER.NAME AS OWNERNAME, USER.EMAIL , USER.PHONE , USER.INCOME FROM LISTING INNER JOIN USER ON LISTING.USER_ID = USER.USER_ID WHERE LISTING.ID = ?";
       const listingDetails = (await queryDatabase(listingDetailsQuery, [id]))[0];
 
+      // fetch reviews for this listing
+      const reviewsQuery = `SELECT R.ID, R.RATING, R.COMMENT, R.CREATED_AT, U.NAME AS REVIEWER_NAME, U.USER_ID AS REVIEWER_ID
+                            FROM REVIEW R INNER JOIN USER U ON U.USER_ID = R.USER_ID
+                            WHERE R.LISTING_ID = ? ORDER BY R.CREATED_AT DESC`;
+      const reviews = await queryDatabase(reviewsQuery, [id]);
+
+      // Has current user booked this listing? (eligible to review)
+      let canReview = false;
+      if (req.user && req.user.USER_ID) {
+        const bookingCheck = await queryDatabase(
+          "SELECT 1 FROM BOOKING WHERE USER_ID = ? AND LISTING_ID = ? LIMIT 1",
+          [req.user.USER_ID, id]
+        );
+        canReview = bookingCheck.length > 0;
+      }
+
       // CHECKING IF THE GIVEN LISTING IS IN THE BOOKING TABLE
       if (listingDetails.AVAILABILITY == 0) {
         // BOOKED
@@ -29,9 +45,9 @@ const listingController = {
           "SELECT * FROM USER WHERE USER_ID = (SELECT USER_ID FROM BOOKING WHERE LISTING_ID = ?) ";
         const bookingUser = (await queryDatabase(bookingUserDetailsQuery, [id]))[0];
         console.log(bookingUser);
-        res.render("listings", { user: req.user, listing: listingDetails, bookingUser });
+        res.render("listings", { user: req.user, listing: listingDetails, bookingUser, reviews, canReview });
       } else {
-        res.render("listings", { user: req.user, listing: listingDetails });
+        res.render("listings", { user: req.user, listing: listingDetails, reviews, canReview });
       }
     } catch (error) {
       console.error("Error in getListingById:", error);
