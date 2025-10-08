@@ -13,7 +13,14 @@
 
   <!-- Listing Title -->
   <section class="text-center py-6">
-    <h1 class="text-4xl font-bold tracking-tight"><%= listing.NAME %></h1>
+    <div class="flex items-center justify-center gap-4">
+      <h1 class="text-4xl font-bold tracking-tight"><%= listing.NAME %></h1>
+      <% if (user && user.USER_ID && user.USER_ID === listing.USER_ID) { %>
+        <a href="/listing/<%= listing.ID %>/edit" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200">
+          Edit Listing
+        </a>
+      <% } %>
+    </div>
   </section>
 
   <!-- Full-Width Listing Image -->
