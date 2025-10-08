@@ -105,6 +105,107 @@ const listingController = {
     }
   },
 
+  // GET /listing/:id/edit
+  getEditListing: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.session.userId;
+
+      if (!userId) {
+        return res.redirect("/login");
+      }
+
+      // Get listing details
+      const listingDetailsQuery =
+        "SELECT * FROM LISTING WHERE ID = ?";
+      const listingDetails = (await queryDatabase(listingDetailsQuery, [id]))[0];
+
+      if (!listingDetails) {
+        return res.status(404).send("Listing not found");
+      }
+
+      // Check if user owns this listing
+      if (listingDetails.USER_ID !== userId) {
+        return res.status(403).send("You can only edit your own listings");
+      }
+
+      res.render("editListing.ejs", { listing: listingDetails, user: req.user });
+    } catch (error) {
+      console.error("Error in getEditListing:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  },
+
+  // PUT /listing/:id
+  updateListing: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const userId = req.session.userId;
+
+      if (!userId) {
+        return res.redirect("/login");
+      }
+
+      // Verify ownership
+      const listingQuery = "SELECT USER_ID FROM LISTING WHERE ID = ?";
+      const listing = (await queryDatabase(listingQuery, [id]))[0];
+
+      if (!listing) {
+        return res.status(404).send("Listing not found");
+      }
+
+      if (listing.USER_ID !== userId) {
+        return res.status(403).send("You can only edit your own listings");
+      }
+
+      const {
+        name,
+        description,
+        street,
+        city,
+        state,
+        pincode,
+        pricePerMonth,
+        discount,
+        size,
+        availability
+      } = req.body;
+
+      // Update listing
+      const updateQuery = `UPDATE LISTING SET 
+        NAME = ?, 
+        DESCRIPTION = ?, 
+        STREET = ?, 
+        CITY = ?, 
+        STATE = ?, 
+        PINCODE = ?, 
+        PRICEPERMONTH = ?, 
+        DISCOUNT = ?, 
+        SIZE = ?, 
+        AVAILABILITY = ?
+        WHERE ID = ?`;
+
+      await queryDatabase(updateQuery, [
+        name,
+        description,
+        street,
+        city,
+        state,
+        pincode,
+        pricePerMonth,
+        discount,
+        size,
+        availability === 'true' ? 1 : 0,
+        id
+      ]);
+
+      res.redirect(`/listing/${id}`);
+    } catch (error) {
+      console.error("Error in updateListing:", error);
+      res.status(500).send("Internal Server Error");
+    }
+  },
+
   // DELETE /listing/:id
   deleteListing: async (req, res) => {
     try {
