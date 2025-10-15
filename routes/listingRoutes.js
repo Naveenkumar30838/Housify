@@ -10,12 +10,15 @@ router.use(getUserFromSession);
 
 // GET routes
 router.get("/new", checkAuth, listingController.getNewListing);
-router.get("/:id", listingController.getListingById);
+router.get("/:id/edit", checkAuth, listingController.getEditListing);
 router.get("/:id", listingController.getListingById);
 
 // POST routes
 router.post("/:id/review", checkAuth, reviewController.createReview);
 router.post("/", upload.single("image"), listingController.createListing);
+
+// PUT routes
+router.put("/:id", checkAuth, listingController.updateListing);
 
 // DELETE routes
 router.delete("/:id", listingController.deleteListing);
